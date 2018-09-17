@@ -4,9 +4,14 @@ using WAL.EventBus.RabbitMQ;
 
 namespace Identity.API
 {
+    using Entity;
+    using Infrastructure.Repositories;
+    using Infrastructure.Services;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore.Infrastructure;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
@@ -24,6 +29,12 @@ namespace Identity.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddEntityFrameworkMySql().AddDbContext<ApplicationUserContext>(builder =>
+            {
+                builder.UseMySql(this.Configuration.GetConnectionString("MySqlConnection"));
+            });
+            services.AddScoped<ILoginService<ApplicationUser>>();
+            services.AddScoped<IApplicationUserRepository>();
         }
 
         // ConfigureContainer is where you can register things directly
