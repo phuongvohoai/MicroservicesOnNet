@@ -9,9 +9,9 @@ namespace Identity.API.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        public ValuesController(IBusRequest request)
+        public ValuesController(IPubSub pubSub)
         {
-
+            pubSub.Publish<EventBase>(new EventBase());
         }
         // GET api/values
         [HttpGet]

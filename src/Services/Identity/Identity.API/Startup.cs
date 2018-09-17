@@ -33,8 +33,6 @@ namespace Identity.API
             {
                 builder.UseMySql(this.Configuration.GetConnectionString("MySqlConnection"));
             });
-            services.AddScoped<ILoginService<ApplicationUser>>();
-            services.AddScoped<IApplicationUserRepository>();
         }
 
         // ConfigureContainer is where you can register things directly
@@ -46,7 +44,13 @@ namespace Identity.API
         public void ConfigureContainer(ContainerBuilder builder)
         {
             builder.RegisterModule(new EventBusModule());
+
+            builder.RegisterType<ApplicationUserContext>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<LoginService>().As<ILoginService<ApplicationUser>>().InstancePerRequest();
+            builder.RegisterType<ApplicationUserRepository>().As<IApplicationUserRepository>().InstancePerRequest();
             var configuration = new RabbitMQBusConfiguration();
+            configuration = configuration.WithUser("rabbitmq").WithPassWord("rabbitmq")
+                .WithHost("RabbitMQ") as RabbitMQBusConfiguration;
             builder.RegisterInstance(configuration).As<IBusConfiguration>().SingleInstance();
         }
 

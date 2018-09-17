@@ -14,8 +14,8 @@ services:
       - "5672:5672"
     labels:
       NAME: "RabbitMQ"
-    volumes:
-      - "./enabled_plugins:/etc/rabbitmq/enabled_plugins"
+    #volumes:
+      #- "./enabled_plugins:/etc/rabbitmq/enabled_plugins"
       #- "./rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro"
       #- "./autocluster-0.4.1.ez:/usr/lib/rabbitmq/lib/rabbitmq_server-3.5.5/plugins/autocluster-0.4.1.ez"
 
@@ -25,12 +25,11 @@ services:
       - mysql_data:/var/lib/mysql
     ports:
     - "3306:3306"
+    - "33060:33060"
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: IdentityAPI
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root
   identity.api:
     image: microservices/identityapi
     build:
