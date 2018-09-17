@@ -11,13 +11,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Identity", "Identity", "{CF
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{4F4ACCDD-43D1-448A-9E29-6A1EA7CB840D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{B7C93393-DC40-4833-8314-57F86C7E0E97}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EventBus", "EventBus", "{8A1280A5-3F1A-4003-96E5-A175A73D554C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WAL.EventBus", "src\Core\EventBus\WAL.EventBus\WAL.EventBus.csproj", "{F914C7AB-5BED-4019-AA78-C3F4872091D9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WAL.EventBus.RabbitMQ", "src\Core\EventBus\WAL.EventBus.RabbitMQ\WAL.EventBus.RabbitMQ.csproj", "{F4DDBA80-10FA-4770-BC52-D6C2777C4CFF}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configurations", "Configurations", "{45FA55E6-2926-46CF-9735-7BC1AC06584D}"
+	ProjectSection(SolutionItems) = preProject
+		.env = .env
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,14 +30,6 @@ Global
 		{4F4ACCDD-43D1-448A-9E29-6A1EA7CB840D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F4ACCDD-43D1-448A-9E29-6A1EA7CB840D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F4ACCDD-43D1-448A-9E29-6A1EA7CB840D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F914C7AB-5BED-4019-AA78-C3F4872091D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F914C7AB-5BED-4019-AA78-C3F4872091D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F914C7AB-5BED-4019-AA78-C3F4872091D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F914C7AB-5BED-4019-AA78-C3F4872091D9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F4DDBA80-10FA-4770-BC52-D6C2777C4CFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F4DDBA80-10FA-4770-BC52-D6C2777C4CFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F4DDBA80-10FA-4770-BC52-D6C2777C4CFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F4DDBA80-10FA-4770-BC52-D6C2777C4CFF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,9 +37,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{ACCDB42A-0EF6-4DD1-821F-5339EE8F1EF3} = {CF6934A9-2F5D-4F40-9E3E-A695E644FF41}
 		{CF6934A9-2F5D-4F40-9E3E-A695E644FF41} = {FA2755B6-27B2-4FAA-975F-A44D01667345}
-		{8A1280A5-3F1A-4003-96E5-A175A73D554C} = {B7C93393-DC40-4833-8314-57F86C7E0E97}
-		{F914C7AB-5BED-4019-AA78-C3F4872091D9} = {8A1280A5-3F1A-4003-96E5-A175A73D554C}
-		{F4DDBA80-10FA-4770-BC52-D6C2777C4CFF} = {8A1280A5-3F1A-4003-96E5-A175A73D554C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4C273852-2C11-4CE4-B0C6-535EBF8D9B28}
