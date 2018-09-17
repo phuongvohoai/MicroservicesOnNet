@@ -30,6 +30,6 @@ namespace WAL.EventBus.Handler
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns></returns>
-        TResponse SendRequest(TRequest request);
+        TResponse Handle(TRequest request);
     }
 }
