@@ -1,7 +1,10 @@
-﻿namespace Identity.API
+﻿
+namespace Identity.API
 {
     using Microsoft.AspNetCore;
     using Microsoft.AspNetCore.Hosting;
+    using Autofac.Extensions.DependencyInjection;
+
 
     public class Program
     {
@@ -12,6 +15,7 @@
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureServices(services => services.AddAutofac())
                 .UseStartup<Startup>();
     }
 }

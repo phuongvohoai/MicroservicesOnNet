@@ -79,7 +79,7 @@ namespace WAL.EventBus.RabbitMQ
         public string GetConnectionString()
         {
             var host = this.port != -1 ? $"{this.hostName}:{this.port}" : this.hostName;
-            return $"host={host};;username={this.user};password={this.password}";
+            return $"host={host};username={this.user};password={this.password}";
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Identity.API.Controllers
+﻿using WAL.EventBus.Abstract;
+
+namespace Identity.API.Controllers
 {
     using System.Collections.Generic;
     using Microsoft.AspNetCore.Mvc;
@@ -7,6 +9,10 @@
     [ApiController]
     public class ValuesController : ControllerBase
     {
+        public ValuesController(IBusRequest request)
+        {
+
+        }
         // GET api/values
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
