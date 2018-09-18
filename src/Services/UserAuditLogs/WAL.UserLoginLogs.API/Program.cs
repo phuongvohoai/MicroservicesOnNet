@@ -1,5 +1,6 @@
 ﻿namespace WAL.UserActivityLogs.API
 {
+    using Autofac.Extensions.DependencyInjection;
     using Microsoft.AspNetCore;
     using Microsoft.AspNetCore.Hosting;
 
@@ -11,7 +12,8 @@
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-                 WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>()
+                .ConfigureServices(services => services.AddAutofac());
     }
 }

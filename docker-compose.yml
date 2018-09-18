@@ -36,10 +36,21 @@ services:
   postgre.data:
     image: postgres:10.5
     restart: always
+     ports:
+    - "5432:5432"
     volumes:
       - postgre_data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: root
+
+  # UserLoginLogsAPI
+  userlogs.api:
+    image: microservices/userslogapi
+    build:
+      context: .
+      dockerfile: src/Services/UserAuditLogs/WAL.UserLoginLogs.API/Dockerfile
+    depends_on:
+      - postgre.data
 
   # IdentityAPI
   identity.api:
@@ -47,15 +58,6 @@ services:
     build:
       context: .
       dockerfile: src/Services/Identity/WAL.Identity.API/Dockerfile
-    depends_on:
-      - mysql.data
-
-  # UserLoginLogsAPI
-  identity.api:
-    image: microservices/userslogapi
-    build:
-      context: .
-      dockerfile: src/Services/UserAuditLogs/WAL.UserLoginLogs.API/Dockerfile
     depends_on:
       - mysql.data
 

@@ -8,5 +8,6 @@
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 
         public DbSet<ActivityLog> ActivityLogs { get; set; }
+
     }
 }
