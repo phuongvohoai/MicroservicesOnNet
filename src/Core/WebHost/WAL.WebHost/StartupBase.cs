@@ -1,35 +1,30 @@
-﻿namespace WAL.Identity.API
+﻿namespace WAL.ServiceHost
 {
     using System;
     using System.Buffers;
     using System.Diagnostics;
     using System.Reflection;
-    using System.Text;
-    using System.Threading.Tasks;
     using Autofac;
+    using Autofac.Extensions.DependencyInjection;
     using AutoMapper;
     using EventBus.Configurations;
     using EventBus.RabbitMQ;
     using Helpers;
-    using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Diagnostics;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Formatters;
     using Microsoft.AspNetCore.Server.Kestrel.Core;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
-    using Microsoft.IdentityModel.Tokens;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
-    using Services;
 
-    public class Startup
+    public class StartupBase
     {
-        public Startup(IConfiguration configuration)
+        public StartupBase(IConfiguration configuration)
         {
             Configuration = configuration;
         }
@@ -49,51 +44,17 @@
                 }, ArrayPool<char>.Shared));
             });
             services.AddAutoMapper();
+            services.AddAutofac();
+            this.OnConfigureServices(services);
+        }
 
-            services.AddEntityFrameworkMySql().AddDbContext<DataContext>(builder =>
-            {
-                builder.UseMySql(this.Configuration.GetConnectionString("MySqlConnection"));
-            });
+        /// <summary>
+        /// Called when [configure services].
+        /// </summary>
+        /// <param name="services">The services.</param>
+        protected virtual void OnConfigureServices(IServiceCollection services)
+        {
 
-            // configure strongly typed settings objects
-            var appSettingsSection = Configuration.GetSection("AppSettings");
-            services.Configure<AppSettings>(appSettingsSection);
-
-            // configure jwt authentication
-            var appSettings = appSettingsSection.Get<AppSettings>();
-            var key = Encoding.ASCII.GetBytes(appSettings.JwtSecret);
-            services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(x =>
-            {
-                x.Events = new JwtBearerEvents
-                {
-                    OnTokenValidated = context =>
-                    {
-                        var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
-                        var userId = int.Parse(context.Principal.Identity.Name);
-                        var user = userService.GetById(userId);
-                        if (user == null)
-                        {
-                            // return unauthorized if user no longer exists
-                            context.Fail("Unauthorized");
-                        }
-                        return Task.CompletedTask;
-                    }
-                };
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
-            });
         }
 
         // ConfigureContainer is where you can register things directly
@@ -106,12 +67,20 @@
         {
             builder.RegisterModule(new EventBusModule());
 
-            builder.RegisterType<DataContext>().AsSelf().InstancePerLifetimeScope();
-            builder.RegisterType<UserService>().As<IUserService>().InstancePerRequest().InstancePerDependency();
+            this.OnConfigureContainer(builder);
             var configuration = new RabbitMQBusConfiguration();
             configuration = configuration.WithUser("rabbitmq").WithPassWord("rabbitmq")
                 .WithHost("RabbitMQ") as RabbitMQBusConfiguration;
             builder.RegisterInstance(configuration).As<IBusConfiguration>().SingleInstance();
+        }
+
+        /// <summary>
+        /// Called when [configure container].
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        protected virtual void OnConfigureContainer(ContainerBuilder builder)
+        {
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

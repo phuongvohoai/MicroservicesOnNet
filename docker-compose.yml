@@ -19,8 +19,9 @@ services:
       #- "./rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro"
       #- "./autocluster-0.4.1.ez:/usr/lib/rabbitmq/lib/rabbitmq_server-3.5.5/plugins/autocluster-0.4.1.ez"
 
+  # MySQL
   mysql.data: 
-    image: mysql
+    image: mysql:5.7
     volumes:
       - mysql_data:/var/lib/mysql
     ports:
@@ -30,6 +31,17 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: IdentityAPI
+
+  # PostgreSQL
+  postgre.data:
+    image: postgres:10.5
+    restart: always
+    volumes:
+      - postgre_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: root
+
+  # IdentityAPI
   identity.api:
     image: microservices/identityapi
     build:
@@ -37,5 +49,16 @@ services:
       dockerfile: src/Services/Identity/WAL.Identity.API/Dockerfile
     depends_on:
       - mysql.data
+
+  # UserLoginLogsAPI
+  identity.api:
+    image: microservices/userslogapi
+    build:
+      context: .
+      dockerfile: src/Services/UserAuditLogs/WAL.UserLoginLogs.API/Dockerfile
+    depends_on:
+      - mysql.data
+
 volumes:
   mysql_data:
+  postgre_data:
