@@ -1,0 +1,7 @@
+namespace WAL.Identity.API.Helpers
+{
+    public class AppSettings
+    {
+        public string JwtSecret { get; set; }
+    }
+}

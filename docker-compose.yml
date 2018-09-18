@@ -34,7 +34,7 @@ services:
     image: microservices/identityapi
     build:
       context: .
-      dockerfile: src/Services/Identity/Identity.API/Dockerfile
+      dockerfile: src/Services/Identity/WAL.Identity.API/Dockerfile
     depends_on:
       - mysql.data
 volumes:
