@@ -1,5 +1,9 @@
 ﻿namespace WAL.Identity.API
 {
+    using System;
+    using System.Buffers;
+    using System.Diagnostics;
+    using System.Reflection;
     using System.Text;
     using System.Threading.Tasks;
     using Autofac;
@@ -9,12 +13,19 @@
     using Helpers;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Diagnostics;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.Formatters;
+    using Microsoft.AspNetCore.Server.Kestrel.Core;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Microsoft.IdentityModel.Tokens;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Serialization;
     using Services;
 
     public class Startup
@@ -30,7 +41,14 @@
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-            services.AddMvc();
+            services.AddMvc(options =>
+            {
+                // Add json output format
+                options.OutputFormatters.Add(new JsonOutputFormatter(new JsonSerializerSettings()
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                }, ArrayPool<char>.Shared));
+            });
             services.AddAutoMapper();
 
             services.AddEntityFrameworkMySql().AddDbContext<DataContext>(builder =>
@@ -122,6 +140,42 @@
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseMvc();
+            app.UseExceptionHandler(errorApp =>
+            {
+                errorApp.Run(async context =>
+                {
+                    var errorFeature = context.Features.Get<IExceptionHandlerFeature>();
+                    var exception = errorFeature.Error;
+
+                    // the IsTrusted() extension method doesn't exist and
+                    // you should implement your own as you may want to interpret it differently
+                    // i.e. based on the current principal
+
+                    var problemDetails = new ProblemDetails
+                    {
+                        Instance = $"urn:error:{Guid.NewGuid()}"
+                    };
+
+                    if (exception is BadHttpRequestException badHttpRequestException)
+                    {
+                        problemDetails.Title = "Invalid request";
+                        problemDetails.Status = (int)typeof(BadHttpRequestException).GetProperty("StatusCode",
+                            BindingFlags.NonPublic | BindingFlags.Instance).GetValue(badHttpRequestException);
+                        problemDetails.Detail = badHttpRequestException.Message;
+                    }
+                    else
+                    {
+                        problemDetails.Title = "An unexpected error occurred!";
+                        problemDetails.Status = 500;
+                        problemDetails.Detail = exception.Demystify().ToString();
+                    }
+
+                    // log the exception etc..
+
+                    context.Response.StatusCode = problemDetails.Status.Value;
+                    context.Response.WriteJson(problemDetails, "application/problem+json");
+                });
+            });
         }
     }
 }

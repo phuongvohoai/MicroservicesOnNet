@@ -17,7 +17,8 @@
 
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
+    [Produces("application/json")]
     public class UsersController : ControllerBase
     {
         private readonly IUserService userService;
@@ -36,7 +37,9 @@
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody]UserViewModel userViewModel)
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public ActionResult<UserViewModel> Authenticate([FromBody]UserViewModel userViewModel)
         {
             var user = userService.Authenticate(userViewModel.Username, userViewModel.Password);
 
@@ -48,7 +51,7 @@
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 // TODO: Add more information
-                Subject = new ClaimsIdentity(new Claim[] 
+                Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.Name, user.Id.ToString())
                 }),
@@ -59,7 +62,8 @@
             var tokenString = tokenHandler.WriteToken(token);
 
             // return basic user info (without password) and token to store client side
-            return Ok(new {
+            return Ok(new UserViewModel()
+            {
                 Id = user.Id,
                 Username = user.Username,
                 FirstName = user.FirstName,
@@ -70,18 +74,18 @@
 
         [AllowAnonymous]
         [HttpPost("register")]
-        public IActionResult Register([FromBody]UserViewModel userViewModel)
+        public ActionResult Register([FromBody]UserViewModel userViewModel)
         {
             // map view model to entity
             var user = mapper.Map<User>(userViewModel);
 
-            try 
+            try
             {
                 // save 
                 userService.Create(user, userViewModel.Password);
                 return Ok();
-            } 
-            catch(AppException ex)
+            }
+            catch (AppException ex)
             {
                 // return error message if there was an exception
                 return BadRequest(new { message = ex.Message });
@@ -89,35 +93,35 @@
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public ActionResult<IEnumerable<UserViewModel>> GetAll()
         {
-            var users =  userService.GetAll();
+            var users = userService.GetAll();
             var userViewModels = mapper.Map<IList<UserViewModel>>(users);
             return Ok(userViewModels);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public ActionResult<UserViewModel> GetById(int id)
         {
-            var user =  userService.GetById(id);
+            var user = userService.GetById(id);
             var userViewModel = mapper.Map<UserViewModel>(user);
             return Ok(userViewModel);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody]UserViewModel userViewModel)
+        public ActionResult Update(int id, [FromBody]UserViewModel userViewModel)
         {
-            // map dto to entity and set id
+            // map view model to entity and set id
             var user = mapper.Map<User>(userViewModel);
             user.Id = id;
 
-            try 
+            try
             {
                 // save 
                 userService.Update(user, userViewModel.Password);
                 return Ok();
-            } 
-            catch(AppException ex)
+            }
+            catch (AppException ex)
             {
                 // return error message if there was an exception
                 return BadRequest(new { message = ex.Message });
@@ -125,7 +129,7 @@
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public ActionResult Delete(int id)
         {
             userService.Delete(id);
             return Ok();
