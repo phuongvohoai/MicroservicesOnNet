@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Core\IntegrationEvents\WAL.IntegrationEvents\WAL.IntegrationEvents.csproj" />
     <ProjectReference Include="..\..\..\Core\WebHost\WAL.WebHost\WAL.ServiceHost.csproj" />
   </ItemGroup>
 

@@ -7,7 +7,9 @@
     using System.Text;
     using AutoMapper;
     using Entities;
+    using EventBus.Abstract;
     using Helpers;
+    using IntegrationEvents;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Options;
@@ -24,15 +26,18 @@
         private readonly IUserService userService;
         private readonly IMapper mapper;
         private readonly AppSettings appSettings;
+        private readonly IPubSub pubSub;
 
         public UsersController(
             IUserService userService,
             IMapper mapper,
-            IOptions<AppSettings> appSettings)
+            IOptions<AppSettings> appSettings,
+            IPubSub pubSub)
         {
             this.userService = userService;
             this.mapper = mapper;
             this.appSettings = appSettings.Value;
+            this.pubSub = pubSub;
         }
 
         [AllowAnonymous]
@@ -60,6 +65,14 @@
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
+
+            this.pubSub.PublishAsync(new ActivityLogAddingEvent()
+            {
+                UserId = user.Id,
+                Activity = "Authenticate",
+                Detail = $"Authenticate user {user.Id} successfully",
+                LogDate = DateTime.UtcNow.ToLongDateString()
+            });
 
             // return basic user info (without password) and token to store client side
             return Ok(new UserViewModel()

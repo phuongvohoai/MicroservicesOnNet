@@ -145,5 +145,10 @@
                 });
             });
         }
+
+        public virtual void OnConfigure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        {
+
+        }
     }
 }

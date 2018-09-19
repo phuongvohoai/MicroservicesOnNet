@@ -23,7 +23,7 @@ services:
   mysql.data: 
     image: mysql:5.7
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql57_data:/var/lib/mysql
     ports:
     - "3306:3306"
     - "33060:33060"
@@ -62,5 +62,5 @@ services:
       - mysql.data
 
 volumes:
-  mysql_data:
+  mysql57_data:
   postgre_data:

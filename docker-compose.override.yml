@@ -1,6 +1,18 @@
 version: '3.4'
 
 services:
+  userlogs.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_HTTPS_PORT=44378
+    ports:
+      - "32769:80"
+      - "44378:443"
+    volumes:
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+
   identity.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development

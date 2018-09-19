@@ -55,7 +55,8 @@ namespace WAL.EventBus.RabbitMQ
         /// <typeparam name="TH">The type of the h.</typeparam>
         /// <param name="message">The message.</param>
         /// <param name="handler">The handler.</param>
-        public void Subcribe<T, TH>(T message, TH handler) where T : EventBase where TH : IEventBusHandlerBase<T>
+        public void Subcribe<T>(IEventBusHandlerBase<T> handler)
+            where T : EventBase
         {
             this.adapter.Bus.Subscribe<T>(string.Empty, handler.Handle);
         }
@@ -67,7 +68,8 @@ namespace WAL.EventBus.RabbitMQ
         /// <typeparam name="TH">The type of the h.</typeparam>
         /// <param name="message">The message.</param>
         /// <param name="handler">The handler.</param>
-        public void SubcribeAsync<T, TH>(T message, TH handler) where T : EventBase where TH : IEventBusHandlerBase<T>
+        public void SubcribeAsync<T>(IEventBusHandlerBase<T> handler)
+            where T : EventBase
         {
             Task OnMessage(T request) => Task.Run(() => { handler.Handle(request); });
             this.adapter.Bus.SubscribeAsync<T>(string.Empty, OnMessage);

@@ -28,22 +28,18 @@ namespace WAL.EventBus.Abstract
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <typeparam name="TH">The type of the h.</typeparam>
-        /// <param name="message">The message.</param>
         /// <param name="handler">The handler.</param>
-        void Subcribe<T, TH>(T message, TH handler)
-            where T : EventBase
-            where TH : IEventBusHandlerBase<T>;
+        void Subcribe<T>(IEventBusHandlerBase<T> handler)
+            where T : EventBase;
 
         /// <summary>
         /// Subcribes the asynchronous.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <typeparam name="TH">The type of the h.</typeparam>
-        /// <param name="message">The message.</param>
         /// <param name="handler">The handler.</param>
         /// <returns></returns>
-        void SubcribeAsync<T, TH>(T message, TH handler)
-            where T : EventBase
-            where TH : IEventBusHandlerBase<T>;
+        void SubcribeAsync<T>(IEventBusHandlerBase<T> handler)
+            where T : EventBase;
     }
 }
