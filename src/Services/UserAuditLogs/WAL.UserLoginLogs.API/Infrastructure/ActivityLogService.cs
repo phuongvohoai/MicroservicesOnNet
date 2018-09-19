@@ -32,7 +32,9 @@
 
         public ActivityLog Create(ActivityLog log)
         {
-            return this.dataContext.ActivityLogs.Add(log).Entity;
+            var entity = this.dataContext.ActivityLogs.Add(log).Entity;
+            this.dataContext.SaveChanges();
+            return entity;
         }
     }
 }

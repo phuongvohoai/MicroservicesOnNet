@@ -10,6 +10,7 @@
     using EventBus.Configurations;
     using EventBus.RabbitMQ;
     using Helpers;
+    using Infrastructure;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Diagnostics;
     using Microsoft.AspNetCore.Hosting;
@@ -43,7 +44,6 @@
                     ContractResolver = new CamelCasePropertyNamesContractResolver()
                 }, ArrayPool<char>.Shared));
             });
-            services.AddAutoMapper();
             services.AddAutofac();
             this.OnConfigureServices(services);
         }
@@ -66,7 +66,6 @@
         public void ConfigureContainer(ContainerBuilder builder)
         {
             builder.RegisterModule(new EventBusModule());
-
             this.OnConfigureContainer(builder);
             var configuration = new RabbitMQBusConfiguration();
             configuration = configuration.WithUser("rabbitmq").WithPassWord("rabbitmq")
@@ -144,6 +143,7 @@
                     context.Response.WriteJson(problemDetails, "application/problem+json");
                 });
             });
+            this.OnConfigure(app, env, loggerFactory);
         }
 
         public virtual void OnConfigure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)

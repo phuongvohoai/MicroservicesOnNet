@@ -1,6 +1,8 @@
 ﻿namespace WAL.UserActivityLogs.API
 {
+    using System;
     using Autofac;
+    using AutoMapper;
     using EventBus.Abstract;
     using Infrastructure;
     using IntegrationEventHandlers;
@@ -31,9 +33,14 @@
         protected override void OnConfigureServices(IServiceCollection services)
         {
             base.OnConfigureServices(services);
+            Mapper.Initialize(x =>
+            {
+                x.AddProfile<AutoMapperProfile>();
+            });
+
             services.AddEntityFrameworkNpgsql().AddDbContext<DataContext>(builder =>
             {
-                builder.UseNpgsql(@"Host=postgre.data;Database=UserActivityLogsAPI;Username=root;Password=root");
+                builder.UseNpgsql(this.Configuration.GetConnectionString("PostGreSqlConnection"));
             });
         }
 
@@ -41,7 +48,7 @@
         {
             var eventBus = app.ApplicationServices.GetRequiredService<IPubSub>();
             var activityLogEventHandler = app.ApplicationServices.GetRequiredService<AddActivityLogEventHandler>();
-            eventBus.SubcribeAsync(activityLogEventHandler);
+            eventBus.SubcribeAsync(activityLogEventHandler);    
         }
 
         public override void OnConfigure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)

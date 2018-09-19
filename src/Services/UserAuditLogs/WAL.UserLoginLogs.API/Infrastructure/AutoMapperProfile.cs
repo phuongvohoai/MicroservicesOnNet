@@ -12,6 +12,7 @@
             CreateMap<ActivityLog, ActivityLogViewModel>();
             CreateMap<ActivityLogViewModel, ActivityLog>();
             CreateMap<ActivityLogAddingEvent, ActivityLog>();
+            CreateMap<ActivityLog, ActivityLogAddingEvent>();
         }
     }
 }
