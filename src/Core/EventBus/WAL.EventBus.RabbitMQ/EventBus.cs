@@ -13,7 +13,7 @@ namespace WAL.EventBus.RabbitMQ
     /// <seealso cref="WAL.EventBus.Abstract.IPubSub" />
     /// <seealso cref="WAL.EventBus.Abstract.IBusRequest" />
     /// <seealso cref="WAL.EventBus.Abstract.IBusResponse" />
-    public class EventBus : IPubSub, IBusRequest, IBusResponse
+    internal class EventBus : IPubSub, IBusRequest, IBusResponse
     {
         /// <summary>
         /// Gets the adapter.
