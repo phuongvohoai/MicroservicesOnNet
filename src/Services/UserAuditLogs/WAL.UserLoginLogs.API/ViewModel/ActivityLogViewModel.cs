@@ -11,5 +11,7 @@
         public string Detail { get; set; }
 
         public string LogDate { get; set; }
+
+        public string Username { get; set; }
     }
 }

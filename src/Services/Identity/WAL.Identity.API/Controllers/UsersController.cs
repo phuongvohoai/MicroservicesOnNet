@@ -113,6 +113,7 @@
             return Ok(userViewModels);
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public ActionResult<UserViewModel> GetById(int id)
         {

@@ -40,7 +40,7 @@
 
             services.AddEntityFrameworkNpgsql().AddDbContext<DataContext>(builder =>
             {
-                builder.UseNpgsql(this.Configuration.GetConnectionString("PostGreSqlConnection"));
+                builder.UseMySql(this.Configuration.GetConnectionString("MySqlConnection"));
             });
         }
 

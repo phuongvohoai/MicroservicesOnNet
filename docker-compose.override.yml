@@ -1,11 +1,16 @@
 version: '3.4'
 
 services:
+  postgre.data:
+    volumes:
+      - ./postgres-initdb.sh:/docker-entrypoint-initdb.d/init.sh
+
   userlogs.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
       - ASPNETCORE_HTTPS_PORT=44378
+      - IdentityApi=http://${WALLET_EXTERNAL_DNS_NAME_OR_IP}:44377
     ports:
       - "32769:80"
       - "44378:443"
