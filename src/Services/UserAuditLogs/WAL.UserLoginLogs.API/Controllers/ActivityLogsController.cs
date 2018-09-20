@@ -1,7 +1,10 @@
 ﻿namespace WAL.UserActivityLogs.API.Controllers
 {
+    using System;
     using System.Collections.Generic;
+    using System.Net;
     using System.Net.Http;
+    using System.Net.Http.Headers;
     using System.Threading.Tasks;
     using AutoMapper;
     using Entities;
@@ -36,23 +39,34 @@
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<ActivityLogViewModel>>> GetByUserId(int userId)
+        public async Task<ActionResult<IEnumerable<ActivityLogViewModel>>> GetByUserId(int id)
         {
-            // Get activity logs by user id
-            var activityLogs = this.activityLogService.GetByUserId(userId);
-            var activityLogViewModels = Mapper.Map<IList<ActivityLogViewModel>>(activityLogs);
+            try
+            {
+                // Get activity logs by user id
+                var activityLogs = this.activityLogService.GetByUserId(id);
+                var activityLogViewModels = Mapper.Map<IList<ActivityLogViewModel>>(activityLogs);
 
-            // TODO: FIX BY ME
-            var identityEndpoint = this.configuration.GetValue<string>("IdentityApi");
-            var usersApiUri = $"{identityEndpoint}/api/users";
+                // TODO: FIX BY ME
+                var identityEndpoint = this.configuration.GetValue<string>("IdentityApi");
+                var usersApiUri = $"{identityEndpoint}/api/users/{id}";
 
-            // Get user name by id from Identity service
-            var httpClient = new HttpClient();
-            var responseMessage = await httpClient.GetAsync(usersApiUri);
-            var responseBody = await responseMessage.Content.ReadAsStringAsync();
-            var user = JsonConvert.DeserializeObject<UserViewModel>(responseBody);
+                // Get user name by id from Identity service
+                using (var client = new HttpClient())
+                {
+                    var httpRequestMsg = new HttpRequestMessage(HttpMethod.Get, usersApiUri);
 
-            return Ok(activityLogViewModels);
+                    var response = await client.SendAsync(httpRequestMsg);
+                    var responseBody = await response.Content.ReadAsStringAsync();
+                    var user = JsonConvert.DeserializeObject<UserViewModel>(responseBody);
+                }
+
+                return Ok(activityLogViewModels);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         // POST api/values
