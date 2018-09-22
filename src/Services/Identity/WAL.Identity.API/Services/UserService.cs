@@ -41,7 +41,7 @@ namespace WAL.Identity.API.Services
             }
 
             // check if password is correct
-            if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+            //if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
             {
                 return null;
             }
@@ -72,7 +72,7 @@ namespace WAL.Identity.API.Services
             byte[] passwordHash, passwordSalt;
             CreatePasswordHash(password, out passwordHash, out passwordSalt);
 
-            user.PasswordHash = passwordHash;
+            //user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
 
             context.Users.Add(user);
@@ -106,7 +106,7 @@ namespace WAL.Identity.API.Services
                 byte[] passwordHash, passwordSalt;
                 CreatePasswordHash(password, out passwordHash, out passwordSalt);
 
-                user.PasswordHash = passwordHash;
+                //user.PasswordHash = passwordHash;
                 user.PasswordSalt = passwordSalt;
             }
 

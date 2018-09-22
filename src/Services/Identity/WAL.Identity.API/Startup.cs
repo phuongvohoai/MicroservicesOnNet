@@ -1,4 +1,8 @@
-﻿namespace WAL.Identity.API
+﻿using IdentityServer4.Services;
+using Microsoft.AspNetCore.Identity;
+using WAL.Identity.API.Entities;
+
+namespace WAL.Identity.API
 {
     using System;
     using System.Buffers;
@@ -26,6 +30,7 @@
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
     using Services;
+    using Microsoft.Extensions.DependencyInjection;
 
     public class Startup
     {
@@ -50,50 +55,78 @@
             });
             services.AddAutoMapper();
 
+            var mysqlConnectionString = this.Configuration.GetConnectionString("MySqlConnection");
             services.AddEntityFrameworkMySql().AddDbContext<DataContext>(builder =>
             {
-                builder.UseMySql(this.Configuration.GetConnectionString("MySqlConnection"));
+                builder.UseMySql(mysqlConnectionString);
             });
 
             // configure strongly typed settings objects
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
-
+            services.AddIdentity<User, UserRole>()
+                .AddEntityFrameworkStores<DataContext>()
+                .AddDefaultTokenProviders();
             // configure jwt authentication
             var appSettings = appSettingsSection.Get<AppSettings>();
             var key = Encoding.ASCII.GetBytes(appSettings.JwtSecret);
-            services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(x =>
-            {
-                x.Events = new JwtBearerEvents
+            //services.AddAuthentication(x =>
+            //{
+            //    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            //    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            //})
+            //.AddJwtBearer(x =>
+            //{
+            //    x.Events = new JwtBearerEvents
+            //    {
+            //        OnTokenValidated = context =>
+            //        {
+            //            var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
+            //            var userId = int.Parse(context.Principal.Identity.Name);
+            //            var user = userService.GetById(userId);
+            //            if (user == null)
+            //            {
+            //                // return unauthorized if user no longer exists
+            //                context.Fail("Unauthorized");
+            //            }
+            //            return Task.CompletedTask;
+            //        }
+            //    };
+            //    x.RequireHttpsMetadata = false;
+            //    x.SaveToken = true;
+            //    x.TokenValidationParameters = new TokenValidationParameters
+            //    {
+            //        ValidateIssuerSigningKey = true,
+            //        IssuerSigningKey = new SymmetricSecurityKey(key),
+            //        ValidateIssuer = false,
+            //        ValidateAudience = false
+            //    };
+            //});
+
+            var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
+            services.AddIdentityServer()
+                .AddDeveloperSigningCredential()
+                .AddAspNetIdentity<User>()
+                .AddConfigurationStore(option =>
                 {
-                    OnTokenValidated = context =>
-                    {
-                        var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
-                        var userId = int.Parse(context.Principal.Identity.Name);
-                        var user = userService.GetById(userId);
-                        if (user == null)
+                    option.ConfigureDbContext = builder => builder.UseMySql(mysqlConnectionString,
+                        mySqlOptionsAction: mysqlOptions =>
                         {
-                            // return unauthorized if user no longer exists
-                            context.Fail("Unauthorized");
-                        }
-                        return Task.CompletedTask;
-                    }
-                };
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
+                            mysqlOptions.MigrationsAssembly(migrationsAssembly);
+                            mysqlOptions.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
+                        });
+                })
+                .AddOperationalStore(options =>
                 {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
-            });
+                    options.ConfigureDbContext = builder => builder.UseMySql(mysqlConnectionString,
+                        mySqlOptionsAction: mysqlOptions =>
+                        {
+                            mysqlOptions.MigrationsAssembly(migrationsAssembly);
+                            //Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
+                            mysqlOptions.EnableRetryOnFailure(maxRetryCount: 15,
+                                maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+                        });
+                }).Services.AddTransient<IProfileService, ProfileService>();
         }
 
         // ConfigureContainer is where you can register things directly
@@ -138,6 +171,7 @@
 
             app.UseHttpsRedirection();
             app.UseAuthentication();
+            app.UseIdentityServer();
             app.UseMvc();
             app.UseExceptionHandler(errorApp =>
             {
