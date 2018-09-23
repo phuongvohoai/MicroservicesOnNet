@@ -29,5 +29,6 @@
     <ProjectReference Include="..\..\..\Core\EventBus\WAL.EventBus.RabbitMQ\WAL.EventBus.RabbitMQ.csproj" />
     <ProjectReference Include="..\..\..\Core\EventBus\WAL.EventBus\WAL.EventBus.csproj" />
     <ProjectReference Include="..\..\..\Core\IntegrationEvents\WAL.IntegrationEvents\WAL.IntegrationEvents.csproj" />
+    <ProjectReference Include="..\..\..\Core\WebHost\WAL.WebHost\WAL.ServiceHost.csproj" />
   </ItemGroup>
 </Project>
